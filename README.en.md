@@ -13,7 +13,7 @@ A Claude Code skill that translates English academic papers (PDF) into Japanese 
 
 - **PDF to Markdown** — Converts paper PDFs to Markdown while preserving section structure
 - **Japanese translation** — Translates body text to Japanese (section headings remain in English)
-- **Figure extraction** — Automatically extracts figures using pymupdf and embeds them in Markdown
+- **Figure extraction** — Auto-detects raster and vector figures using DocLayout-YOLO, merges with captions, and embeds in Markdown
 - **Structured summary** — Generates a structured summary with one-line overview, section summaries, and keywords
 - **PDF export** — Outputs both translation and summary as PDF (CJK line-break aware)
 - **Batch processing** — Supports processing multiple PDFs at once
@@ -55,11 +55,19 @@ Copy-Item SKILL.md "$env:USERPROFILE\.claude\commands\paper-translate\SKILL.md"
 
 ### 3. Install dependencies
 
-**Python library (for figure extraction)**
+**Python libraries (for figure extraction)**
 
 ```bash
-pip install pymupdf
+pip install doclayout-yolo pdf2image Pillow huggingface_hub
 ```
+
+**poppler (required by pdf2image)**
+
+| OS | Command |
+|---|---|
+| Windows | Download [poppler for Windows](https://github.com/oschwartz10612/poppler-windows/releases) and add to PATH |
+| macOS | `brew install poppler` |
+| Linux | `sudo apt install poppler-utils` |
 
 **PDF conversion engine (for PDF output)**
 
@@ -87,7 +95,9 @@ Launch Claude Code and run `/paper-translate`:
 |---|---|
 | Claude Code | Latest version |
 | Python | 3.10+ |
-| pymupdf | 1.23+ |
+| doclayout-yolo | Latest |
+| pdf2image | Latest |
+| poppler | Latest |
 | pandoc | 2.x+ |
 | TeX engine | lualatex (recommended) or xelatex |
 | Japanese font | Yu Gothic (Win) / Hiragino (Mac) / Noto CJK (Linux) |
@@ -95,7 +105,7 @@ Launch Claude Code and run `/paper-translate`:
 ## :building_construction: How It Works
 
 1. **Step 0** — Identify PDF files and create output folder
-2. **Step 1** — Extract figures from PDF (`pymupdf`)
+2. **Step 1** — Extract figures from PDF (`DocLayout-YOLO Hybrid`)
 3. **Step 2** — Convert PDF to Markdown with section structure
 4. **Step 3** — Translate to Japanese (keep headings in English)
 5. **Step 4** — Generate structured summary

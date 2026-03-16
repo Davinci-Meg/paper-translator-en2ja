@@ -13,7 +13,7 @@
 
 - **PDF → Markdown 変換** — セクション構造を保ったまま論文PDFをMarkdownに変換
 - **日本語翻訳** — 本文を日本語に翻訳（セクション見出しは英語のまま保持）
-- **図表の自動抽出** — pymupdf で図表を抽出し、Markdownに埋め込み
+- **図表の自動抽出** — DocLayout-YOLO でラスター・ベクター図版を自動検出し、キャプションと統合して切り抜き
 - **構造化サマリー** — 一言まとめ・セクション要約・キーワードを含むサマリーを生成
 - **PDF出力** — 翻訳・サマリーをそれぞれPDFとして出力（CJK改行対応）
 - **一括処理** — 複数PDFの一括処理に対応
@@ -55,11 +55,19 @@ Copy-Item SKILL.md "$env:USERPROFILE\.claude\commands\paper-translate\SKILL.md"
 
 ### 3. 依存関係のインストール
 
-**Python ライブラリ（画像抽出に必要）**
+**Python ライブラリ（図版抽出に必要）**
 
 ```bash
-pip install pymupdf
+pip install doclayout-yolo pdf2image Pillow huggingface_hub
 ```
+
+**poppler（pdf2image の依存）**
+
+| OS | コマンド |
+|---|---|
+| Windows | [poppler for Windows](https://github.com/oschwartz10612/poppler-windows/releases) をダウンロードしPATHに追加 |
+| macOS | `brew install poppler` |
+| Linux | `sudo apt install poppler-utils` |
 
 **PDF 変換エンジン（PDF 出力に必要）**
 
@@ -88,7 +96,9 @@ Claude Code を起動して `/paper-translate` を実行：
 |---|---|
 | Claude Code | 最新版 |
 | Python | 3.10 以上 |
-| pymupdf | 1.23 以上 |
+| doclayout-yolo | 最新版 |
+| pdf2image | 最新版 |
+| poppler | 最新版 |
 | pandoc | 2.x 以上 |
 | TeX エンジン | lualatex（推奨）または xelatex |
 | 日本語フォント | Yu Gothic (Win) / Hiragino (Mac) / Noto CJK (Linux) |
@@ -96,7 +106,7 @@ Claude Code を起動して `/paper-translate` を実行：
 ## :building_construction: 処理フロー
 
 1. **Step 0** — PDFファイルの特定と出力フォルダの作成
-2. **Step 1** — PDFから図表画像を抽出 (`pymupdf`)
+2. **Step 1** — PDFから図版を抽出 (`DocLayout-YOLO Hybrid`)
 3. **Step 2** — PDFをセクション構造付きMarkdownに変換
 4. **Step 3** — 日本語に翻訳（見出しは英語保持）
 5. **Step 4** — 構造化サマリーを生成
